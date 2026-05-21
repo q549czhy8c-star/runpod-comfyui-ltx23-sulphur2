@@ -1,31 +1,35 @@
-# RunPod ComfyUI LTX 2.3 Sulphur 2 Setup
+# RunPod ComfyUI Sulphur 2 GGUF Workflow Setup
 
-One-command RunPod setup for ComfyUI with LTX 2.3 / Sulphur 2 workflows.
+One-command RunPod setup for the `Sulphur 2 (GGUF)` ComfyUI workflow.
 
-Sulphur 2 is a community open-weights video model published at `SulphurAI/Sulphur-2-base` on Hugging Face. It is based on LTX 2.3 and supports text-to-video and image-to-video workflows in ComfyUI. The setup script installs ComfyUI, ComfyUI-Manager, LTXVideo nodes, downloads the Sulphur 2 checkpoint, optional distill LoRA, and the bundled workflow JSON files.
+This repo is built around a GGUF LTX 2.3 / Sulphur 2 workflow that uses `smthemex/ComfyUI_LTX2_SM` nodes instead of the standard checkpoint-only ComfyUI graph. The setup script installs ComfyUI, installs the required custom nodes, downloads the exact model filenames referenced by the workflow, and copies the workflow into ComfyUI's user workflow folder.
 
 ## What It Installs
 
 - ComfyUI into `/workspace/ComfyUI`
 - Python virtual environment at `/workspace/ComfyUI/venv`
 - ComfyUI-Manager
-- ComfyUI-LTXVideo custom nodes
-- Sulphur 2 checkpoint, defaulting to `sulphur_dev_fp8mixed.safetensors`
-- Sulphur 2 distill LoRA
-- Four Sulphur 2 ComfyUI workflows:
-  - `ltx23_t2v base.json`
-  - `ltx23_t2v distilled.json`
-  - `ltx23_i2v base.json`
-  - `ltx23_i2v distilled.json`
+- `smthemex/ComfyUI_LTX2_SM`
+- `workflows/Sulphur 2 (GGUF).json`
+- Neutral placeholder input image at `/workspace/ComfyUI/input/example.png`
+- GGUF transformer: `sulphur_distil-Q6_K.gguf`
+- GGUF text encoder: `gemma-3-12b-it-qat-Q4_0.gguf`
+- Text connector: `connector-11.safetensors`
+- Video VAE: `LTX23_video_vae_bf16.safetensors`
+- Audio VAE: `LTX23_audio_vae_bf16.safetensors`
+- Sulphur LoRA: `sulphur_lora_rank_768.safetensors`
+- Spatial upscaler: `ltx-2.3-spatial-upscaler-x2-1.1.safetensors`
+- Frame interpolation model: `film_net_fp16.safetensors`
 
 ## Recommended RunPod Template
 
-Use a CUDA/PyTorch RunPod image with enough disk space for large video checkpoints.
+Use a CUDA/PyTorch RunPod image with enough disk space for large model files.
 
 Suggested minimums:
 
-- GPU: 24 GB VRAM for fp8mixed, 32 GB+ preferred for bf16
-- Disk: 80 GB+ for fp8mixed, 130 GB+ for bf16 and prompt enhancer
+- GPU: 16 GB VRAM can be workable for GGUF/offload setups; 24 GB+ is more comfortable
+- RAM: 48 GB+ is recommended by the `ComfyUI_LTX2_SM` workflow author
+- Disk: 80 GB+ minimum, 120 GB+ safer
 - Expose HTTP port: `8188`
 
 ## Quick Start
@@ -46,49 +50,57 @@ Start ComfyUI:
 /workspace/start_comfyui.sh
 ```
 
-Open the RunPod HTTP service for port `8188`.
+Open the RunPod HTTP service for port `8188`, then load `Sulphur 2 (GGUF).json` from the workflow menu. Replace `example.png` and the prompt inside ComfyUI before a real run.
 
-## Model Variants
+## Workflow Models
 
-Default setup downloads the smaller fp8mixed Sulphur 2 checkpoint:
-
-```bash
-MODEL_VARIANT=fp8mixed ./scripts/setup_runpod.sh
-```
-
-For the full bf16 checkpoint:
+The default setup downloads the full model set required by the included GGUF workflow:
 
 ```bash
-MODEL_VARIANT=bf16 ./scripts/setup_runpod.sh
+./scripts/setup_runpod.sh
 ```
 
-To install ComfyUI and nodes without downloading the base checkpoint:
+Skip all large GGUF/VAE/upscaler downloads if you already mounted the files:
 
 ```bash
-MODEL_VARIANT=none ./scripts/setup_runpod.sh
+DOWNLOAD_GGUF_MODELS=0 ./scripts/setup_runpod.sh
 ```
 
-## Optional Downloads
-
-Skip the distill LoRA:
+Skip the 10 GB Sulphur rank LoRA:
 
 ```bash
-DOWNLOAD_LORA=0 ./scripts/setup_runpod.sh
+DOWNLOAD_RANK_LORA=0 ./scripts/setup_runpod.sh
 ```
 
-Skip workflow JSON downloads:
+Skip the frame interpolation model:
+
+```bash
+DOWNLOAD_FRAME_INTERPOLATION=0 ./scripts/setup_runpod.sh
+```
+
+Skip copying the workflow JSON:
 
 ```bash
 DOWNLOAD_WORKFLOWS=0 ./scripts/setup_runpod.sh
 ```
 
-Download the prompt enhancer GGUF files as well:
+## Optional Prompt Enhancer
+
+Download the Sulphur prompt enhancer GGUF files as well:
 
 ```bash
 DOWNLOAD_PROMPT_ENHANCER=1 ./scripts/setup_runpod.sh
 ```
 
 The prompt enhancer files are placed in `/workspace/sulphur_prompt_enhancer`.
+
+## Optional Lightricks Nodes
+
+This workflow uses `ComfyUI_LTX2_SM`, so the official Lightricks custom node pack is not installed by default. Install it as an extra node pack if you want to experiment with other LTX workflows:
+
+```bash
+INSTALL_LTXVIDEO_NODES=1 ./scripts/setup_runpod.sh
+```
 
 ## PyTorch / CUDA
 
@@ -118,8 +130,12 @@ Default paths:
 
 ```text
 /workspace/ComfyUI
+/workspace/ComfyUI/models/gguf
 /workspace/ComfyUI/models/checkpoints
+/workspace/ComfyUI/models/vae
 /workspace/ComfyUI/models/loras
+/workspace/ComfyUI/models/latent_upscale_models
+/workspace/ComfyUI/models/frame_interpolation
 /workspace/ComfyUI/user/default/workflows
 /workspace/start_comfyui.sh
 ```
@@ -130,15 +146,24 @@ Override the workspace:
 WORKSPACE_DIR=/runpod-volume ./scripts/setup_runpod.sh
 ```
 
+Use a different local workflow file:
+
+```bash
+WORKFLOW_FILE=/workspace/my-workflow.json ./scripts/setup_runpod.sh
+```
+
 ## Notes
 
 - Hugging Face downloads are large. Keep the RunPod pod alive until downloads finish.
 - Some Hugging Face files may require accepting model license terms or being logged in with `HF_TOKEN`; if needed, run `export HF_TOKEN=hf_your_token_here` before the setup script.
-- The Sulphur model card recommends using either the full model or LoRA path, not both in the same workflow unless the workflow specifically expects it.
-- Review the upstream licenses before commercial use.
+- The included workflow is a neutral-prompt version of the local workflow this setup was based on. Swap prompts and input image inside ComfyUI after installation.
+- Review upstream licenses before commercial use.
 
 ## Sources
 
-- ComfyUI LTX 2.3 workflow docs: <https://docs.comfy.org/tutorials/video/ltx/ltx-2-3>
-- LTX 2.3 overview: <https://ltx.io/model/ltx-2-3>
+- `ComfyUI_LTX2_SM`: <https://github.com/smthemex/ComfyUI_LTX2_SM>
+- GGUF model files: <https://huggingface.co/smthem/LTX-2.3-test-gguf>
+- VAE files: <https://huggingface.co/Kijai/LTX2.3_comfy>
+- LTX 2.3 upscaler: <https://huggingface.co/Lightricks/LTX-2.3>
+- Frame interpolation: <https://huggingface.co/Comfy-Org/frame_interpolation>
 - Sulphur 2 Hugging Face repo: <https://huggingface.co/SulphurAI/Sulphur-2-base>
