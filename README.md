@@ -167,3 +167,75 @@ WORKFLOW_FILE=/workspace/my-workflow.json ./scripts/setup_runpod.sh
 - LTX 2.3 upscaler: <https://huggingface.co/Lightricks/LTX-2.3>
 - Frame interpolation: <https://huggingface.co/Comfy-Org/frame_interpolation>
 - Sulphur 2 Hugging Face repo: <https://huggingface.co/SulphurAI/Sulphur-2-base>
+
+## Wan2.2 PainterI2V Workflow
+
+This repo also includes a separate setup script for `Wan2.2_I2V_PainterI2V_Workflow_Kenpechi_v2.4.json`.
+
+Run it on a fresh RunPod pod:
+
+```bash
+cd /workspace
+git clone https://github.com/q549czhy8c-star/runpod-comfyui-ltx23-sulphur2.git
+cd runpod-comfyui-ltx23-sulphur2
+chmod +x scripts/setup_wan22_painteri2v.sh
+./scripts/setup_wan22_painteri2v.sh
+```
+
+Start ComfyUI:
+
+```bash
+/workspace/start_comfyui.sh
+```
+
+The Wan workflow is copied to:
+
+```text
+/workspace/ComfyUI/user/default/workflows/Wan2.2_I2V_PainterI2V_Workflow_Kenpechi_v2.4.json
+```
+
+### Wan2.2 Defaults
+
+The script installs the custom nodes used by the workflow:
+
+- `rgthree-comfy`
+- `ComfyUI-KJNodes`
+- `ComfyUI-Impact-Pack`
+- `ComfyUI-Custom-Scripts`
+- `ComfyUI-GGUF`
+- `ComfyUI-VideoHelperSuite`
+- `ComfyUI-PainterI2Vadvanced`
+- `ComfyUI-Frame-Interpolation`
+
+By default it downloads the GGUF route used by the workflow:
+
+- `Wan2.2-I2V-A14B-HighNoise-Q8_0.gguf`
+- `Wan2.2-I2V-A14B-LowNoise-Q8_0.gguf`
+- `umt5_xxl_fp8_e4m3fn_scaled.safetensors`
+- `wan_2.1_vae.safetensors`
+- Lightx2v high/low LoRAs
+- FFGO high/low LoRAs
+- `RealESRGAN_x2plus.pth`
+- `rife49.pth`
+
+Optional switches:
+
+```bash
+DOWNLOAD_GGUF_MODELS=0 ./scripts/setup_wan22_painteri2v.sh
+DOWNLOAD_SAFETENSORS_MODELS=1 ./scripts/setup_wan22_painteri2v.sh
+DOWNLOAD_LIGHTX2V_LORAS=0 ./scripts/setup_wan22_painteri2v.sh
+DOWNLOAD_FFGO_LORAS=0 ./scripts/setup_wan22_painteri2v.sh
+DOWNLOAD_UPSCALE_MODEL=0 ./scripts/setup_wan22_painteri2v.sh
+DOWNLOAD_RIFE_MODEL=0 ./scripts/setup_wan22_painteri2v.sh
+```
+
+The included Wan workflow is a neutral-prompt version of the local workflow it was based on. Replace `example.png`, prompts, and optional Power LoRA entries inside ComfyUI after installation.
+
+Wan2.2 sources:
+
+- Wan GGUF high/low noise models: <https://huggingface.co/QuantStack/Wan2.2-I2V-A14B-GGUF>
+- Wan ComfyUI repackaged models: <https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged>
+- Wan text encoder and VAE: <https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged>
+- Lightx2v distill LoRAs: <https://huggingface.co/lightx2v/Wan2.2-Distill-Loras>
+- Kijai WanVideo assets: <https://huggingface.co/Kijai/WanVideo_comfy>
+- PainterI2V Advanced: <https://github.com/princepainter/ComfyUI-PainterI2Vadvanced>
