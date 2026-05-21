@@ -66,6 +66,8 @@ clone_or_update() {
   if [[ -d "${target_dir}/.git" ]]; then
     log "Updating ${label}"
     git -C "${target_dir}" pull --ff-only
+  elif [[ -d "${target_dir}" && -f "${target_dir}/main.py" ]]; then
+    log "Using existing ${label} at ${target_dir}"
   else
     log "Cloning ${label}"
     git clone --depth 1 "${repo_url}" "${target_dir}"
@@ -81,8 +83,12 @@ venv_pip() {
 }
 
 setup_python() {
-  log "Creating Python virtual environment"
-  python3 -m venv "${COMFY_DIR}/venv"
+  if [[ -x "${COMFY_DIR}/venv/bin/python" ]]; then
+    log "Using existing Python virtual environment"
+  else
+    log "Creating Python virtual environment"
+    python3 -m venv "${COMFY_DIR}/venv"
+  fi
   "$(venv_python)" -m pip install --upgrade pip setuptools wheel
 
   if [[ "${INSTALL_TORCH}" == "1" ]]; then

@@ -52,6 +52,33 @@ Start ComfyUI:
 
 Open the RunPod HTTP service for port `8188`, then load `Sulphur 2 (GGUF).json` from the workflow menu. Replace `example.png` and the prompt inside ComfyUI before a real run.
 
+## RunPod Official ComfyUI Template
+
+If you start from RunPod's official ComfyUI template, you can still use these scripts. That template normally already includes ComfyUI and ComfyUI-Manager, so the scripts will reuse the existing `/workspace/ComfyUI` folder and only add the missing custom nodes, workflow files, and models.
+
+Recommended flow:
+
+```bash
+cd /workspace
+git clone https://github.com/q549czhy8c-star/runpod-comfyui-ltx23-sulphur2.git
+cd runpod-comfyui-ltx23-sulphur2
+chmod +x scripts/setup_runpod.sh scripts/setup_wan22_painteri2v.sh
+```
+
+For Sulphur 2 GGUF:
+
+```bash
+./scripts/setup_runpod.sh
+```
+
+For Wan2.2 PainterI2V:
+
+```bash
+./scripts/setup_wan22_painteri2v.sh
+```
+
+If ComfyUI is already running while the script installs custom nodes, restart ComfyUI after setup so the new nodes are loaded.
+
 ## Workflow Models
 
 The default setup downloads the full model set required by the included GGUF workflow:
