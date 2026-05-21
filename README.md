@@ -34,7 +34,7 @@ On a fresh RunPod terminal:
 
 ```bash
 cd /workspace
-git clone https://github.com/YOUR_GITHUB_USERNAME/runpod-comfyui-ltx23-sulphur2.git
+git clone https://github.com/q549czhy8c-star/runpod-comfyui-ltx23-sulphur2.git
 cd runpod-comfyui-ltx23-sulphur2
 chmod +x scripts/setup_runpod.sh
 ./scripts/setup_runpod.sh
@@ -133,7 +133,7 @@ WORKSPACE_DIR=/runpod-volume ./scripts/setup_runpod.sh
 ## Notes
 
 - Hugging Face downloads are large. Keep the RunPod pod alive until downloads finish.
-- Some Hugging Face files may require accepting model license terms or being logged in with `HF_TOKEN`.
+- Some Hugging Face files may require accepting model license terms or being logged in with `HF_TOKEN`; if needed, run `export HF_TOKEN=hf_your_token_here` before the setup script.
 - The Sulphur model card recommends using either the full model or LoRA path, not both in the same workflow unless the workflow specifically expects it.
 - Review the upstream licenses before commercial use.
 
