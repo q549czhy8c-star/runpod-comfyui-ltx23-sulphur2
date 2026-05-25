@@ -1,40 +1,40 @@
-# RunPod ComfyUI Sulphur 2 GGUF Workflow Setup
+# RunPod Sulphur 2 Setup for ComfyUI Template
 
-One-command RunPod setup for the `Sulphur 2 (GGUF)` ComfyUI workflow.
+This guide is for starting Sulphur 2 on RunPod using a ComfyUI template.
 
-This repo is built around a GGUF LTX 2.3 / Sulphur 2 workflow that uses `smthemex/ComfyUI_LTX2_SM` nodes instead of the standard checkpoint-only ComfyUI graph. The setup script installs ComfyUI, installs the required custom nodes, downloads the exact model filenames referenced by the workflow, and copies the workflow into ComfyUI's user workflow folder.
+You do not need to understand the code. The setup script will install the missing custom nodes, download the model files, copy the workflow into ComfyUI, and create a small example image so the workflow can open cleanly.
 
-## What It Installs
+## Before You Start
 
-- ComfyUI into `/workspace/ComfyUI`
-- Python virtual environment at `/workspace/ComfyUI/venv`
-- ComfyUI-Manager
-- `smthemex/ComfyUI_LTX2_SM`
-- `workflows/Sulphur 2 (GGUF).json`
-- Neutral placeholder input image at `/workspace/ComfyUI/input/example.png`
-- GGUF transformer: `sulphur_distil-Q6_K.gguf`
-- GGUF text encoder: `gemma-3-12b-it-qat-Q4_0.gguf`
-- Text connector: `connector-11.safetensors`
-- Video VAE: `LTX23_video_vae_bf16.safetensors`
-- Audio VAE: `LTX23_audio_vae_bf16.safetensors`
-- Sulphur LoRA: `sulphur_lora_rank_768.safetensors`
-- Spatial upscaler: `ltx-2.3-spatial-upscaler-x2-1.1.safetensors`
-- Frame interpolation model: `film_net_fp16.safetensors`
+Use a RunPod ComfyUI template, such as:
 
-## Recommended RunPod Template
+<https://console.runpod.io/hub/template/comfyui?id=cw3nka7d08>
 
-Use a CUDA/PyTorch RunPod image with enough disk space for large model files.
+Recommended pod settings:
 
-Suggested minimums:
+- GPU: 24 GB VRAM or more is recommended
+- Pod volume: 120 GB or more is safer
+- HTTP port: `8188`
 
-- GPU: 16 GB VRAM can be workable for GGUF/offload setups; 24 GB+ is more comfortable
-- RAM: 48 GB+ is recommended by the `ComfyUI_LTX2_SM` workflow author
-- Disk: 80 GB+ minimum, 120 GB+ safer
-- Expose HTTP port: `8188`
+The download is large, so the setup may take a while. Keep the pod running until it finishes.
 
-## Quick Start
+## Step 1: Start The Pod
 
-On a fresh RunPod terminal:
+1. Open the RunPod ComfyUI template.
+2. Choose your GPU.
+3. Set enough disk/pod volume space.
+4. Deploy the pod.
+5. Wait until the pod says it is running.
+
+## Step 2: Open The Pod Terminal
+
+In RunPod, open your pod and click **Connect**.
+
+Open the **Web Terminal** or **Start Web Terminal** option.
+
+## Step 3: Paste This Setup Command
+
+Copy and paste this whole block into the RunPod terminal:
 
 ```bash
 cd /workspace
@@ -44,44 +44,79 @@ chmod +x scripts/setup_runpod.sh
 ./scripts/setup_runpod.sh
 ```
 
-Start ComfyUI:
+Wait until you see `Done`.
+
+If the terminal shows a Hugging Face permission or license error, you may need a Hugging Face token. Run this first, then run the setup command again:
+
+```bash
+export HF_TOKEN=hf_your_token_here
+```
+
+## Step 4: Restart ComfyUI
+
+The ComfyUI template may already be running before setup. After the setup finishes, restart ComfyUI so it can load the new Sulphur 2 custom nodes.
+
+The easiest way:
+
+1. Stop the current ComfyUI process in the terminal if it is running.
+2. Start ComfyUI again with:
 
 ```bash
 /workspace/start_comfyui.sh
 ```
 
-Open the RunPod HTTP service for port `8188`, then load `Sulphur 2 (GGUF).json` from the workflow menu. Replace `example.png` and the prompt inside ComfyUI before a real run.
+If your template has a RunPod button to restart the service, you can use that instead.
 
-## RunPod Official ComfyUI Template
+## Step 5: Open ComfyUI
 
-If you start from RunPod's official ComfyUI template, you can still use these scripts. That template normally already includes ComfyUI and ComfyUI-Manager, so the scripts will reuse the existing `/workspace/ComfyUI` folder and only add the missing custom nodes, workflow files, and models.
+In RunPod, open the HTTP service for port `8188`.
 
-Recommended flow:
+In ComfyUI:
 
-```bash
-cd /workspace
-git clone https://github.com/q549czhy8c-star/runpod-comfyui-ltx23-sulphur2.git
-cd runpod-comfyui-ltx23-sulphur2
-chmod +x scripts/setup_runpod.sh scripts/setup_wan22_painteri2v.sh
+1. Open the workflow menu.
+2. Load `Sulphur 2 (GGUF).json`.
+3. The workflow starts with `example.png`.
+4. Replace `example.png` with your own image.
+5. Replace the prompt with what you want to generate.
+6. Click **Queue Prompt**.
+
+## What The Script Installs
+
+- Sulphur 2 workflow: `Sulphur 2 (GGUF).json`
+- Custom node: `ComfyUI_LTX2_SM`
+- Sulphur 2 GGUF model: `sulphur_distil-Q6_K.gguf`
+- GGUF text encoder: `gemma-3-12b-it-qat-Q4_0.gguf`
+- Text connector: `connector-11.safetensors`
+- Video VAE: `LTX23_video_vae_bf16.safetensors`
+- Audio VAE: `LTX23_audio_vae_bf16.safetensors`
+- Sulphur LoRA: `sulphur_lora_rank_768.safetensors`
+- Spatial upscaler: `ltx-2.3-spatial-upscaler-x2-1.1.safetensors`
+- Frame interpolation model: `film_net_fp16.safetensors`
+- Example input image: `/workspace/ComfyUI/input/example.png`
+
+## Useful Paths
+
+You normally do not need these, but they help if you want to check files:
+
+```text
+/workspace/ComfyUI
+/workspace/ComfyUI/user/default/workflows/Sulphur 2 (GGUF).json
+/workspace/ComfyUI/input/example.png
+/workspace/start_comfyui.sh
 ```
 
-For Sulphur 2 GGUF:
+## If Something Goes Wrong
 
-```bash
-./scripts/setup_runpod.sh
-```
+- If ComfyUI says nodes are missing, restart ComfyUI after setup.
+- If a model is missing, run `./scripts/setup_runpod.sh` again.
+- If Hugging Face blocks a download, set `HF_TOKEN` and run the script again.
+- If the pod runs out of disk space, increase the pod volume and run the script again.
 
-For Wan2.2 PainterI2V:
-
-```bash
-./scripts/setup_wan22_painteri2v.sh
-```
-
-If ComfyUI is already running while the script installs custom nodes, restart ComfyUI after setup so the new nodes are loaded.
+## Advanced Options
 
 ## Workflow Models
 
-The default setup downloads the full model set required by the included GGUF workflow:
+The default setup downloads the full model set required by the Sulphur 2 GGUF workflow:
 
 ```bash
 ./scripts/setup_runpod.sh
